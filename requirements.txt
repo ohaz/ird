@@ -1,0 +1,4 @@
+irc == 14.1
+SQLAlchemy == 1.0.9
+SQLAlchemy_Utils == 0.32.9
+jaraco.timing == 1.3.1
