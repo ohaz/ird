@@ -99,6 +99,8 @@ class Bot(irc.bot.SingleServerIRCBot):
         if len(split) != 2:
             c.privmsg(e.source.nick, 'Wrong amount of arguments. Retry with .accept-stats <character name>')
             return
+        for line in self.game.accept_character(split[1], e.source.nick).splitlines():
+            c.privmsg(e.source.nick, line)
 
     def reroll_stats(self, e):
         c = self.connection
@@ -106,7 +108,8 @@ class Bot(irc.bot.SingleServerIRCBot):
         if len(split) != 2:
             c.privmsg(e.source.nick, 'Wrong amount of arguments. Retry with .reroll-stats <character name>')
             return
-        self.game.reroll_stats(split[1])
+        for line in self.game.reroll_stats(split[1]).splitlines():
+            c.privmsg(e.source.nick, line)
 
     def join(self, e):
         c = self.connection
@@ -121,7 +124,7 @@ class Bot(irc.bot.SingleServerIRCBot):
         for name in self.channels:
             channel = self.channels[name]
             if name in self.active_channels:
-                if e.source.nick in channel.users():
+                if e.source.nick in list(channel.users()):
                     c.privmsg(name, result[1])
 
     def move(self, e):
