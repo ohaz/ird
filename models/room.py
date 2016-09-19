@@ -1,22 +1,25 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 __author__ = 'ohaz'
 
+room_transit = Table('room_transit', Base.metadata,
+    Column('entry_id', Integer, ForeignKey('room.id'), primary_key=True),
+    Column('exit_id', Integer, ForeignKey('room.id'), primary_key=True),
+    Column('oneway', Boolean(), default=False)
+)
 
 class Room(Base):
     __tablename__ = 'room'
-
     id = Column(Integer, primary_key=True)
     generated = Column(Boolean(), default=False)
-    parent_id = Column(Integer, ForeignKey('room.id'))
-    parent = relationship('Room', back_populates='children', remote_side=[id])
-    children = relationship('Room', back_populates='parent')
+    exits = relationship("Room", secondary=room_transit, primaryjoin=id==room_transit.c.entry_id, secondaryjoin=id==room_transit.c.exit_id, backref="entries")
     users = relationship('User')
 
     def __str__(self):
-        return '<Room {}, neighbours: {}>'.format(self.id, [self.parent.id if self.parent else None]+[child.id for child in self.children])
+        return 'BLA'
+        return '<Room {}, neighbours: {}>'.format(self.id, [exits.id for exit in self.exits])
 
     def __repr__(self):
         return str(self)

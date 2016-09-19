@@ -88,11 +88,9 @@ class Game:
             neighbours = []
         r = Room(generated=False)
         if parent is not None:
-            parent.children.append(r)
-            r.parent = parent
+            parent.exits.append(r)
         for neighbour in neighbours:
-            neighbour.children.append(r)
-            r.children.append(neighbour)
+            r.exits.append(r)
         session.add(r)
         session.commit()
         return r
