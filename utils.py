@@ -5,13 +5,14 @@ __author__ = 'ohaz'
 random.seed()
 charset = string.ascii_letters + string.digits
 
-
-def generate_stats():
+#todo generate stats level-based
+def generate_stats(level):
     random.random()
     random.random()
-    stats = [random_stat(), random_stat(), random_stat(), random_stat(), random_stat(), random_stat()]
+    #todo generate hp instead of sending 0
+    stats = [0, random_stat(), random_stat(), random_stat(), random_stat(), random_stat(), random_stat()]
     while sum(stats) not in range(10, 20):
-        stats = [random_stat(), random_stat(), random_stat(), random_stat(), random_stat(), random_stat()]
+        stats = [0, random_stat(), random_stat(), random_stat(), random_stat(), random_stat(), random_stat()]
     return stats
 
 

@@ -3,7 +3,7 @@ import irc.bot
 import irc.strings
 import irc.client
 from database import session
-from models.user import User, new_user, set_stats, hash_key
+from models.user import User, new_user, hash_key
 import utils
 import traceback
 from game import Game

@@ -1,6 +1,6 @@
 from database import session
 from models.room import Room
-from models.user import User, new_user, set_stats, hash_key
+from models.user import User, new_user, hash_key
 from pprint import pprint
 import utils
 
@@ -14,38 +14,40 @@ class Game:
         self.start_room = None
         self.running = False
 
-    def register(self, character_name, source_nick):
-        if len(character_name) > 30:
+    def register(self, user_name, source_nick):
+        if len(user_name) > 30:
             return 'Character name too long. Retry with a shorter name - .register <character name>'
         if source_nick in self.users_in_registration.keys():
             return 'You are already in registration process. Please continue with next step!'
         for character in self.users_in_registration.values():
-            if character.character_name == character_name:
+            if character.user_name == user_name:
                 return 'This character name is currently in registration process. Please try again with a different name'
-        user = session.query(User).filter(User.character_name == character_name).first()
+        user = session.query(User).filter(User.user_name == user_name).first()
         if user:
             return 'This username is already registered. Retry with a different one or log in with .join <character name> <pass phrase>'
 
-        stats = utils.generate_stats()
+        #stats = utils.generate_stats()
         pw = utils.generate_password()
-        user = new_user(character_name, pw, stats)
-        self.users_in_registration[character_name] = user
+        user = new_user(user_name, pw)
+        self.users_in_registration[user_name] = user
         return 'Your auth-key is {} - Please save it for future logins!\nYou currently have the following stats: {} - do you want to .reroll-stats <character_name> or .accept-stats <character_name>?'.format(
             pw, user.print_stats())
 
-    def accept_character(self, character_name, source_nick):
-        if character_name in self.users_in_registration.keys():
-            session.add(self.users_in_registration[character_name])
+    def accept_character(self, user_name, source_nick):
+        if user_name in self.users_in_registration.keys():
+            c = self.users_in_registration[user_name]
+            session.add(c.character)
+            session.add(c)
             session.commit()
-            self.authed[source_nick] = self.users_in_registration[character_name]
+            self.authed[source_nick] = self.users_in_registration[user_name]
             return 'Your character has been saved.'
         return 'Sorry, but you don\'t have any characters in creation process. Use .register!'
 
-    def reroll_stats(self, character_name):
-        if character_name in self.users_in_registration.keys():
-            set_stats(self.users_in_registration[character_name], utils.generate_stats())
+    def reroll_stats(self, user_name):
+        if user_name in self.users_in_registration.keys():
+            self.users_in_registration[user_name].character.roll_stats()
             return 'You currently have the following stats: {} - do you want to .reroll-stats or .accept-stats?'.format(
-                self.users_in_registration[character_name].print_stats())
+                self.users_in_registration[user_name].print_stats())
         else:
             return 'Sorry, but you don\'t have any characters in creation process. Use .register!'
 
@@ -106,15 +108,15 @@ class Game:
         if not self.player_online():
             self.running = False
 
-    def join(self, character_name, auth_key, source_nick):
-        user = session.query(User).filter(User.character_name == character_name,
+    def join(self, user_name, auth_key, source_nick):
+        user = session.query(User).filter(User.user_name == user_name,
                                           User.auth_key == hash_key(auth_key)).first()
         if user is None:
             return 'Wrong Character-name / Auth-Key combination. Please try again!'
         self.authed[source_nick] = user
         if self.player_online() and not self.running:
             self.start()
-        return ('Authenticated as {}, have fun!'.format(user.character_name),
-                'User {} joined with Character {}!'.format(source_nick, user.character_name))
+        return ('Authenticated as {}, have fun!'.format(user.user_name),
+                'User {} joined with Character {}!'.format(source_nick, user.user_name))
 
 

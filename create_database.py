@@ -1,6 +1,7 @@
 import sys
 from sqlalchemy_utils import database_exists, create_database
 from database import engine, Base
+from models.character import Character
 from models.user import User
 from models.room import Room, room_transit
 
