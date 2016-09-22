@@ -1,5 +1,6 @@
 import random
 import string
+
 __author__ = 'ohaz'
 
 random.seed()
@@ -21,7 +22,7 @@ def generate_stats(level):
 def random_stat(level):
     stat = random.randint(-1, 3)
     i = 0
-    for i in range (1, level):
+    for i in range(1, level):
         stat += random.randint(0, 1)
 
     return stat

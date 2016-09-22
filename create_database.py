@@ -21,7 +21,6 @@ for argit in sys.argv:
         print()
         exit()
 
-
 if __name__ == '__main__':
 
     if not (database_exists(engine.url) and not opt_replace):

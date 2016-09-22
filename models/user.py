@@ -11,20 +11,13 @@ __author__ = 'ohaz'
 
 class User(Base):
     __tablename__ = 'user'
-    #character_name = Column(String(30), primary_key=True)
+
     user_name = Column(String(30), primary_key=True)
     character = relationship("Character", back_populates="user")
     character_id = Column(Integer, ForeignKey('character.id'))
 
     auth_key = Column(String(256))
-    #hp = Column(Integer)
-    #max_hp = Column(Integer)
-    #strength = Column(Integer)
-    #dexterity = Column(Integer)
-    #constitution = Column(Integer)
-    #intelligence = Column(Integer)
-    #wisdom = Column(Integer)
-    #charisma = Column(Integer)
+
     creation_date = Column(Integer)
 
     location_id = Column(Integer, ForeignKey('room.id'))

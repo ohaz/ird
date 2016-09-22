@@ -118,5 +118,3 @@ class Game:
             self.start()
         return ('Authenticated as {}, have fun!'.format(user.user_name),
                 'User {} joined with Character {}!'.format(source_nick, user.user_name))
-
-
