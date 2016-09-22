@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from jaraco.stream import buffer
 import irc.bot
 import irc.strings
