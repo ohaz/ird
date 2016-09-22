@@ -6,11 +6,9 @@ random.seed()
 charset = string.ascii_letters + string.digits
 
 
-# todo generate stats level-based
 def generate_stats(level):
     random.random()
     random.random()
-    # todo generate hp instead of sending 0
 
     stats = [random_stat(level), random_stat(level), random_stat(level), random_stat(level), random_stat(level),
              random_stat(level)]
