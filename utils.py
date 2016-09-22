@@ -5,19 +5,28 @@ __author__ = 'ohaz'
 random.seed()
 charset = string.ascii_letters + string.digits
 
-#todo generate stats level-based
+
+# todo generate stats level-based
 def generate_stats(level):
     random.random()
     random.random()
-    #todo generate hp instead of sending 0
-    stats = [0, random_stat(), random_stat(), random_stat(), random_stat(), random_stat(), random_stat()]
+    # todo generate hp instead of sending 0
+
+    stats = [random_stat(level), random_stat(level), random_stat(level), random_stat(level), random_stat(level),
+             random_stat(level)]
     while sum(stats) not in range(10, 20):
-        stats = [0, random_stat(), random_stat(), random_stat(), random_stat(), random_stat(), random_stat()]
+        stats = [random_stat(level), random_stat(level), random_stat(level), random_stat(level), random_stat(level),
+                 random_stat(level)]
     return stats
 
 
-def random_stat():
-    return random.randint(-1, 3)
+def random_stat(level):
+    stat = random.randint(-1, 3)
+    i = 0
+    for i in range (1, level):
+        stat += random.randint(0, 1)
+
+    return stat
 
 
 def generate_password():

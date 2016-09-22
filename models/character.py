@@ -20,6 +20,7 @@ class Character(Base):
     wisdom = Column(Integer)
     charisma = Column(Integer)
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.roll_stats()
@@ -27,16 +28,18 @@ class Character(Base):
 
     def roll_stats(self):
         stats = utils.generate_stats(self.level)
-        self.hp = stats[0]
-        self.max_hp = self.hp
-        self.strength = stats[1]
-        self.dexterity = stats[2]
-        self.constitution = stats[3]
-        self.intelligence = stats[4]
-        self.wisdom = stats[5]
-        self.charisma = stats[6]
+        self.strength       = stats[0]
+        self.dexterity      = stats[1]
+        self.constitution   = stats[2]
+        self.intelligence   = stats[3]
+        self.wisdom         = stats[4]
+        self.charisma       = stats[5]
+
+        self.max_hp = 20 + 3 * self.constitution
+        self.hp = self.max_hp
+
 
     def print_stats(self):
-        return 'STR: {} DEX: {} CON: {} INT: {} WIS: {} CHA: {}' \
+        return 'STR: {} DEX: {} CON: {} INT: {} WIS: {} CHA: {} HP: {}/{}' \
             .format(self.strength, self.dexterity, self.constitution,
-                    self.intelligence, self.wisdom, self.charisma)
+                    self.intelligence, self.wisdom, self.charisma, self.hp, self.max_hp)

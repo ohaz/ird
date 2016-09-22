@@ -26,7 +26,7 @@ class Game:
         if user:
             return 'This username is already registered. Retry with a different one or log in with .join <character name> <pass phrase>'
 
-        #stats = utils.generate_stats()
+        # stats = utils.generate_stats()
         pw = utils.generate_password()
         user = new_user(user_name, pw)
         self.users_in_registration[user_name] = user
