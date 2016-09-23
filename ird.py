@@ -5,6 +5,8 @@ import irc.strings
 import irc.client
 from database import session
 from models.user import User, new_user, hash_key
+from models.room import Room
+from models.character import Character
 import utils
 import traceback
 from game import Game
@@ -127,9 +129,20 @@ class Bot(irc.bot.SingleServerIRCBot):
             if name in self.active_channels:
                 if e.source.nick in list(channel.users()):
                     c.privmsg(name, result[1])
+        c.privmsg(e.source.nick, self.game.authed[e.source.nick].character.move(self.game.start_room))
 
     def move(self, e):
-        pass
+        c = self.connection
+        split = e.arguments[0].split(' ')
+        if len(split) != 2:
+            c.privmsg(e.source.nick, 'Wrong amount of arguments. Try .move <Room-ID>.')
+            return
+        r = session.query(Room).get(int(split[1]))
+        if r is not None:
+            c.privmsg(e.source.nick, self.game.authed[e.source.nick].character.move(r))
+        else:
+            c.privmsg(e.source.nick, 'Invalid room.')
+        #split = e.arguments[0].split(' ')
 
     def talk(self, e):
         pass

@@ -20,9 +20,6 @@ class User(Base):
 
     creation_date = Column(Integer)
 
-    location_id = Column(Integer, ForeignKey('room.id'))
-    location = relationship('Room', back_populates='users')
-
     def print_stats(self):
         return self.character.print_stats()
 

@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 import utils
 from database import Base
+from models.room import Room
 
 __author__ = 'Hamster'
 
@@ -10,6 +11,9 @@ class Character(Base):
     __tablename__ = 'character'
     id = Column(Integer, primary_key=True)
     user = relationship("User", uselist=False, back_populates="character")
+
+    room_id = Column(Integer, ForeignKey('room.id'))
+    room = relationship("Room", back_populates="characters")
 
     level = Column(Integer)
     hp = Column(Integer)
@@ -36,6 +40,16 @@ class Character(Base):
 
         self.max_hp = 20 + 3 * self.constitution
         self.hp = self.max_hp
+
+    def move(self, targetRoom):
+        if self.room_id == targetRoom.id:
+            return "You are already in this room."
+        elif (self.room is not None) and (targetRoom not in self.room.exits):
+            return "There is no such exit."
+        self.room = targetRoom
+        self.room_id = targetRoom.id
+        return self.room.get_description()
+
 
     def print_stats(self):
         return 'STR: {} DEX: {} CON: {} INT: {} WIS: {} CHA: {} HP: {}/{}' \

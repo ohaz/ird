@@ -57,11 +57,11 @@ class Game:
                 return True
         return False
 
-    def generate_room(self, prepared=None, level=0, neighbours=None, parent=None):
+    def generate_room(self, prepared=None, level=0, neighbours=None):
         if neighbours is None:
             neighbours = []
         if prepared is None:
-            prepared = self.prepare_room(level, neighbours, parent)
+            prepared = self.prepare_room(level, neighbours)
         self.generate_content(prepared, level)
         prepared.generated = True
         session.commit()
@@ -85,14 +85,13 @@ class Game:
     def generate_others(self, room, level):
         pass
 
-    def prepare_room(self, level=0, neighbours=None, parent=None):
+    def prepare_room(self, level=0, neighbours=None):
         if neighbours is None:
             neighbours = []
         r = Room(generated=False)
-        if parent is not None:
-            parent.exits.append(r)
         for neighbour in neighbours:
-            r.exits.append(r)
+            r.exits.append(neighbour)
+            neighbour.exits.append(r)
         session.add(r)
         session.commit()
         return r
@@ -101,8 +100,14 @@ class Game:
         self.running = True
         if session.query(Room).first() is None:
             self.start_room = self.generate_room()
-            r2 = self.prepare_room(parent=self.start_room)
-            r3 = self.prepare_room(parent=self.start_room, neighbours=[r2])
+            self.start_room.desc_name = "in the starting room"
+            self.start_room.desc_flavor = "As you look at the white unfinished walls, they also look at you."
+            r2 = self.prepare_room(neighbours=[self.start_room])
+            r2.desc_name = "in a hallway"
+            r2.desc_flavor = "For a moment you are unsure wether it is 'a' or 'an hallway' before moving on."
+            r3 = self.prepare_room(neighbours=[r2])
+            r3.desc_name = "at the end of the game"
+            r3.desc_flavor = "Victory is yours at last!"
 
     def shutdown(self):
         if not self.player_online():
