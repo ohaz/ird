@@ -1,4 +1,4 @@
-# Dungeons Bot
+# Internet Relay Dungeon
 
 ***
 > A bot for a cooperative text-based dungeon crawl experience!  
