@@ -16,7 +16,7 @@ class User(Base):
     user_name = Column(String(30), primary_key=True)
 
     # CHILD-Parent one-to-one relationship to character
-    character = relationship("Character", back_populates="user")
+    character = relationship('Character', back_populates='user')
     character_id = Column(Integer, ForeignKey('character.id'))
 
     auth_key = Column(String(256))
@@ -33,4 +33,4 @@ def hash_key(key):
 
 def new_user(username, auth_key):
     return User(user_name=username, auth_key=hash_key(auth_key),
-                creation_date=int(time.time()), character=Character(equipable_items = EquipSlots.ALL, level=1))
+                creation_date=int(time.time()), character=Character(equipable_items=EquipSlots.ALL, level=1))

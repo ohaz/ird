@@ -12,14 +12,14 @@ class Character(Base):
     id = Column(Integer, primary_key=True)
 
     # PARENT-Child one-to-one relationship to user
-    user = relationship("User", uselist=False, back_populates="character")
+    user = relationship('User', uselist=False, back_populates='character')
 
     # PARENT-Child one-to-many relationship to item
-    inventory = relationship("Item")
+    inventory = relationship('Item')
 
     # Parent-CHILD one-to-many relationship to room
     room_id = Column(Integer, ForeignKey('room.id'))
-    room = relationship("Room", back_populates="characters")
+    room = relationship('Room', back_populates='characters')
 
     # properties
     level = Column(Integer)
@@ -58,7 +58,6 @@ class Character(Base):
         self.room = targetRoom
         self.room_id = targetRoom.id
         return self.room.get_description()
-
 
     def print_stats(self):
         return 'STR: {} DEX: {} CON: {} INT: {} WIS: {} CHA: {} HP: {}/{}' \
