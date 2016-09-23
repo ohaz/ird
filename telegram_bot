@@ -1,0 +1,36 @@
+from telegram.ext import CommandHandler
+from telegram.ext import Filters
+from telegram.ext import MessageHandler
+from telegram.ext import Updater
+
+
+def main():
+    updater = Updater(token='243149568:AAHObk0VRyuwqQ2MjkwhsZ6X4mjrnXsFoMw')
+    dispatcher = updater.dispatcher
+
+    def start(bot, update):
+        bot.sendMessage(chat_id=update.message.chat_id, text="I'm a bot, please talk to me!")
+
+    def stop(bot, update):
+        bot.sendMessage(chat_id=update.message.chat_id, text="Bye!")
+        updater.stop()
+
+    def echo(bot, update):
+        print(update.message.text)
+        bot.sendMessage(chat_id=update.message.chat_id,
+                        text=update.message.text.upper())
+
+    start_handler = CommandHandler('start', start)
+    dispatcher.add_handler(start_handler)
+
+    stop_handler = CommandHandler('stop', stop)
+    dispatcher.add_handler(stop_handler)
+
+    echo_handler = MessageHandler([Filters.text], echo)
+    dispatcher.add_handler(echo_handler)
+
+    updater.start_polling()
+
+
+if __name__ == "__main__":
+    main()
