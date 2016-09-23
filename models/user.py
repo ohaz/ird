@@ -12,6 +12,7 @@ __author__ = 'ohaz'
 class User(Base):
     __tablename__ = 'user'
 
+    # CHILD-Parent relationship to character
     user_name = Column(String(30), primary_key=True)
     character = relationship("Character", back_populates="user")
     character_id = Column(Integer, ForeignKey('character.id'))

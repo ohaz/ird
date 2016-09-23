@@ -9,6 +9,8 @@ __author__ = 'Hamster'
 
 class Character(Base):
     __tablename__ = 'character'
+
+    # PARENT-Child relationship to user
     id = Column(Integer, primary_key=True)
     user = relationship("User", uselist=False, back_populates="character")
 
