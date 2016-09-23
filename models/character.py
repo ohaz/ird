@@ -17,9 +17,11 @@ class Character(Base):
     # PARENT-Child one-to-many relationship to item
     inventory = relationship("Item")
 
+    # Parent-CHILD one-to-many relationship to room
     room_id = Column(Integer, ForeignKey('room.id'))
     room = relationship("Room", back_populates="characters")
 
+    # properties
     level = Column(Integer)
     hp = Column(Integer)
     max_hp = Column(Integer)
