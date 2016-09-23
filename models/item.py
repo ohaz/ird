@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+from utils.equip_slot import EquipSlots
 
 from database import Base
 
@@ -14,3 +15,4 @@ class Item(Base):
     char_id = Column(Integer, ForeignKey('character.id'))
 
     equipped = False
+    slot = EquipSlots.NONE

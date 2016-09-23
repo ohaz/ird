@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-import utils
+from utils import utils
 from database import Base
 from models.room import Room
 
@@ -31,6 +31,8 @@ class Character(Base):
     intelligence = Column(Integer)
     wisdom = Column(Integer)
     charisma = Column(Integer)
+
+    equipable_items = Column(Integer)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

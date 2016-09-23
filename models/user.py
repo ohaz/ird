@@ -6,6 +6,8 @@ from models.character import Character
 import hashlib
 import time
 
+from utils.equip_slot import EquipSlots
+
 __author__ = 'ohaz'
 
 
@@ -31,4 +33,4 @@ def hash_key(key):
 
 def new_user(username, auth_key):
     return User(user_name=username, auth_key=hash_key(auth_key),
-                creation_date=int(time.time()), character=Character(level=1))
+                creation_date=int(time.time()), character=Character(equipable_items = EquipSlots.ALL, level=1))
