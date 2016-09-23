@@ -9,10 +9,13 @@ __author__ = 'Hamster'
 
 class Character(Base):
     __tablename__ = 'character'
-
-    # PARENT-Child relationship to user
     id = Column(Integer, primary_key=True)
+
+    # PARENT-Child one-to-one relationship to user
     user = relationship("User", uselist=False, back_populates="character")
+
+    # PARENT-Child one-to-many relationship to item
+    inventory = relationship("Item")
 
     room_id = Column(Integer, ForeignKey('room.id'))
     room = relationship("Room", back_populates="characters")
@@ -57,3 +60,6 @@ class Character(Base):
         return 'STR: {} DEX: {} CON: {} INT: {} WIS: {} CHA: {} HP: {}/{}' \
             .format(self.strength, self.dexterity, self.constitution,
                     self.intelligence, self.wisdom, self.charisma, self.hp, self.max_hp)
+
+    def equip(self, itemid):
+        return 0
