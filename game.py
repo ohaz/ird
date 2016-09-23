@@ -104,7 +104,7 @@ class Game:
             self.start_room.desc_flavor = "As you look at the white unfinished walls, they also look at you."
             r2 = self.prepare_room(neighbours=[self.start_room])
             r2.desc_name = "in a hallway"
-            r2.desc_flavor = "For a moment you are unsure wether it is 'a' or 'an hallway' before moving on."
+            r2.desc_flavor = "For a moment you are unsure whether it is 'a' or 'an hallway' before moving on."
             r3 = self.prepare_room(neighbours=[r2])
             r3.desc_name = "at the end of the game"
             r3.desc_flavor = "Victory is yours at last!"
