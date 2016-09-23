@@ -2,7 +2,7 @@ from database import session
 from models.room import Room
 from models.user import User, new_user, hash_key
 from pprint import pprint
-import utils
+from utils import utils
 
 __author__ = 'ohaz'
 
