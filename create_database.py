@@ -5,8 +5,9 @@ from database import engine, Base
 from models.character import Character
 from models.user import User
 from models.room import Room, room_transit
+from models.telegram_user import TelegramUser
 
-__author__ = 'ohaz, popup'
+__author__ = 'ohaz, popup, TheWhiteLlama'
 
 opt_replace = False
 

@@ -15,7 +15,7 @@ class Character(Base):
     user = relationship("User", uselist=False, back_populates="character")
 
     # PARENT-Child one-to-many relationship to item
-    inventory = relationship("Item")
+    # inventory = relationship("Item")
 
     # Parent-CHILD one-to-many relationship to room
     room_id = Column(Integer, ForeignKey('room.id'))

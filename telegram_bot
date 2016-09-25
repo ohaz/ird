@@ -1,36 +1,199 @@
+from pprint import pprint
+
+from telegram import InlineKeyboardButton
+from telegram import InlineKeyboardMarkup
+from telegram.ext import CallbackQueryHandler
 from telegram.ext import CommandHandler
 from telegram.ext import Filters
 from telegram.ext import MessageHandler
 from telegram.ext import Updater
+import logging
+
+from database import session
+from game import Game
+from models.telegram_user import TelegramUser, new_telegram_user
+from models.user import User, new_user
+from utils import utils
+
+
+class Bot:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.updater = None
+        self.dispatcher = None
+        self.user_modes = {}
+        self.game = Game()
+
+    def start(self):
+        self.updater = Updater(token=self.api_key)
+        self.dispatcher = self.updater.dispatcher
+
+        def start(bot, update):
+            bot.sendMessage(chat_id=update.message.chat_id, text='I\'m a bot, please talk to me!')
+
+        def stop(bot, update):
+            bot.sendMessage(chat_id=update.message.chat_id, text='Bye!')
+            self.updater.stop()
+
+        def echo(bot, update):
+            print(update.message.text)
+            bot.sendMessage(chat_id=update.message.chat_id,
+                            text=update.message.text.upper())
+
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        start_handler = CommandHandler('start', start)
+        self.dispatcher.add_handler(start_handler)
+
+        stop_handler = CommandHandler('stop', stop)
+        self.dispatcher.add_handler(stop_handler)
+
+        self.dispatcher.add_handler(CommandHandler('join', join_wrapper(self)))
+
+        echo_handler = MessageHandler([Filters.text], message_wrapper(self))
+        self.dispatcher.add_handler(echo_handler)
+
+        self.updater.dispatcher.add_handler(CallbackQueryHandler(button))
+        self.updater.start_polling()
+
+
+def join_wrapper(telegram_bot):
+    def join(bot, update):
+        """
+        Called when a user calls the /join command.
+        Will prompt the user to either create a new character or use an existing one
+
+        :param bot: the bot to be used for responding
+        :param update: the update the bot received
+        :return: None
+        """
+        telegram_user_id = update.message.from_user.id
+        print('user with id {} wants to join.'.format(telegram_user_id))
+        if telegram_user_id in telegram_bot.user_modes:
+            if telegram_bot.user_modes[telegram_user_id]['mode'] == 'registration':
+                bot.sendMessage(
+                    chat_id=update.message.chat_id,
+                    text='Hey, finish your registration first! 🤔'
+                )
+                return
+            else:
+                # remove any other actions the user wanted to take
+                del telegram_bot.user_modes[telegram_user_id]
+
+        db_telegram_user = session.query(TelegramUser).filter(TelegramUser.telegram_user_id == telegram_user_id).first()
+        options_first_line = []
+        options_second_line = []
+        if db_telegram_user is None:
+            telegram_bot.user_modes[telegram_user_id] = \
+                {
+                    'mode': 'registration',
+                    'telegram_user': new_telegram_user(telegram_user_id)
+                }
+            pass
+        else:
+            if db_telegram_user.user_name is not None:
+                options_first_line.append(
+                    InlineKeyboardButton('Use existing character', callback_data='use_existing_character'))
+            options_first_line.append(
+                InlineKeyboardButton('Create new character', callback_data='create_new_character'))
+            options_second_line.append(InlineKeyboardButton('Nah... changed my opinion', callback_data='cancel_join'))
+
+        keyboard = [options_first_line, options_second_line]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        if db_telegram_user is None:
+            bot.sendMessage(
+                chat_id=update.message.chat_id,
+                text='You want to play a game, heh? 😏'
+            )
+            bot.sendMessage(
+                chat_id=update.message.chat_id,
+                text='What\'s your name buddy?'
+            )
+        else:
+            bot.sendMessage(
+                chat_id=update.message.chat_id,
+                text='Hey {}, wanna play a game, heh? 😏'.format(db_telegram_user.user.user_name),
+                reply_markup=reply_markup
+            )
+
+    return join
+
+
+def message_wrapper(telegram_bot):
+    """
+    create a new method that wraps another method for bot updates
+    :param telegram_bot: the telegram bot
+    :return: the message handler method
+    """
+    options = {
+        'registration': set_user_name
+    }
+
+    def message(bot, update):
+        telegram_user_id = update.message.from_user.id
+        if telegram_user_id in telegram_bot.user_modes:
+            user_mode = telegram_bot.user_modes[telegram_user_id]
+            if user_mode['mode'] in options:
+                options[user_mode['mode']](bot, update, user_mode['telegram_user'])
+                del telegram_bot.user_modes[telegram_user_id]
+
+    return message
+
+
+def set_user_name(bot, update, telegram_user):
+    pw = utils.generate_password()
+    telegram_user.user = new_user(update.message.text, pw)
+    session.add(telegram_user)
+    session.commit()
+    bot.sendMessage(
+        text='Thanks! I will remember you 😎',
+        chat_id=update.message.chat_id
+    )
+
+
+def button(bot, update):
+    """
+    Called when a user clicks on a button that has been provided by the bot.
+    Will update the correct message and eventually removing / change buttons when necessary
+
+    :param bot: the bot to be used for responding
+    :param update: the update the bot received
+    :return: None
+    """
+    options = {
+        'create_new_character': create_character,
+        'cancel_join': cancel_join
+    }
+    query = update.callback_query
+    if query.data in options:
+        options[query.data](bot, query)
+
+
+def create_character(bot, query):
+    """
+    create a new character
+    :param bot:
+    :param query:
+    :return:
+    """
+    bot.editMessageText(text='🎲 Now lets roll you some stats!',
+                        chat_id=query.message.chat_id,
+                        message_id=query.message.message_id)
+
+    pass
+
+
+def cancel_join(bot, query):
+    bot.editMessageText(text='Hmm. See you soon then! ☹️',
+                        chat_id=query.message.chat_id,
+                        message_id=query.message.message_id)
 
 
 def main():
-    updater = Updater(token='243149568:AAHObk0VRyuwqQ2MjkwhsZ6X4mjrnXsFoMw')
-    dispatcher = updater.dispatcher
-
-    def start(bot, update):
-        bot.sendMessage(chat_id=update.message.chat_id, text="I'm a bot, please talk to me!")
-
-    def stop(bot, update):
-        bot.sendMessage(chat_id=update.message.chat_id, text="Bye!")
-        updater.stop()
-
-    def echo(bot, update):
-        print(update.message.text)
-        bot.sendMessage(chat_id=update.message.chat_id,
-                        text=update.message.text.upper())
-
-    start_handler = CommandHandler('start', start)
-    dispatcher.add_handler(start_handler)
-
-    stop_handler = CommandHandler('stop', stop)
-    dispatcher.add_handler(stop_handler)
-
-    echo_handler = MessageHandler([Filters.text], echo)
-    dispatcher.add_handler(echo_handler)
-
-    updater.start_polling()
+    # TODO delete test telegram bot when open sourcing
+    b = Bot('243149568:AAHObk0VRyuwqQ2MjkwhsZ6X4mjrnXsFoMw')  # currently the hyper bot's api-key for testing
+    b.start()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
